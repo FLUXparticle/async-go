@@ -1,23 +1,23 @@
 package async
 
-type SequenceScope struct {
-	results chan any
+type SequenceScope[T any] struct {
+	results chan T
 }
 
-func Sequence(block func(*SequenceScope)) chan any {
-	results := make(chan any)
+func Sequence[T any](block func(*SequenceScope[T])) chan T {
+	results := make(chan T)
 	go func() {
-		block(&SequenceScope{results: results})
+		block(&SequenceScope[T]{results: results})
 		close(results)
 	}()
 	return results
 }
 
-func (s *SequenceScope) Yield(value any) {
+func (s *SequenceScope[T]) Yield(value T) {
 	s.results <- value
 }
 
-func (s *SequenceScope) YieldAll(values []any) {
+func (s *SequenceScope[T]) YieldAll(values []T) {
 	for _, value := range values {
 		s.results <- value
 	}
